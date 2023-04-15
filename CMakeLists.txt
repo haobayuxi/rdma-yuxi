@@ -1,9 +1,8 @@
-# Author: Ming Zhang
 # Copyright (c) 2022
 
 cmake_minimum_required(VERSION 3.3)
 
-project(FORD)
+project(YUXI)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -16,8 +15,8 @@ else()
 endif()
 
 include_directories(
-    core
     thirdparty
+    core
     peer
 )
 
