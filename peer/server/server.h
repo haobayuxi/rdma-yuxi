@@ -6,6 +6,9 @@ class Server {
 
   ~Server() {}
 
-  Void InitData() private : const int server_id;
+  // void InitData();
+
+ private:
+  const int server_id;
   const SystemConfig config;
 };

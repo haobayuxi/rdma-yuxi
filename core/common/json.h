@@ -1,6 +1,7 @@
 
 #include <json/json.h>
 
+#include <iostream>
 #include <string>
 
 #include "common.h"
@@ -10,6 +11,9 @@ SystemConfig read_config_from_file() {
   Json::Reader reader;
   Json::Value root;
   ifstream srcFile(config_file, ios::binary);
+  if (!srcFile.is_open()) {
+    std::cout << "file not open" << endl;
+  }
   reader.parse(srcFile, root);
 
   struct SystemConfig sys_config;
