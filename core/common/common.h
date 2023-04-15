@@ -4,6 +4,8 @@
 #include <cstdint>  // For uintxx_t
 #include <unordered_map>
 
+using namespace std;
+
 // Global specification
 using tx_id_t = uint64_t;     // Transaction id type
 using t_id_t = uint32_t;      // Thread id type
@@ -49,5 +51,5 @@ const uint64_t MEM_STORE_META_END = 0xE0FF0E0F;
 
 struct SystemConfig {
   int executor_num;
-  unordered_map<int, String> server_addrs;
-}
+  unordered_map<int, std::string> server_addrs;
+};
