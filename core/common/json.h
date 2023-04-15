@@ -20,7 +20,7 @@ SystemConfig read_config_from_file() {
   struct SystemConfig sys_config;
   sys_config.executor_num = root["executor_num"].asInt();
   for (int i = 0; i < root["server_addrs"].size(); i++) {
-    sys_config.server_addrs.push_back(root["server_addrs"].asString());
+    sys_config.server_addrs.push_back(root["server_addrs"][i].asString());
   }
   return sys_config;
 }
