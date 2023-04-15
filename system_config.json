@@ -1,5 +1,5 @@
 {
-    "execute_num": 10,
+    "executor_num": 10,
     "server_addrs": [
         "192.168.1.71",
         "192.168.1.72",
