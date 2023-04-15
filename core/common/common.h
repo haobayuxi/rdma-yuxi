@@ -1,16 +1,8 @@
 #pragma once
 
-#include <unordered_map>
-
-// Author: Ming Zhang
-// Copyright (c) 2022
-
-#pragma once
-
 #include <cstddef>  // For size_t
 #include <cstdint>  // For uintxx_t
-
-#include "flags.h"
+#include <unordered_map>
 
 // Global specification
 using tx_id_t = uint64_t;     // Transaction id type
