@@ -22,7 +22,6 @@ SystemConfig read_config_from_file() {
   for (int i = 0; i < root["server_addrs"].size(); i++) {
     sys_config.server_addrs.push_back(root["server_addrs"][i].asString());
   }
-  std::cout << sys_config.executor_num << "  " << sys_config.server_addrs
-            << endl;
+  std::cout << sys_config.executor_num << endl;
   return sys_config;
 }
