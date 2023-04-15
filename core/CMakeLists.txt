@@ -16,4 +16,4 @@ add_library(yuxi STATIC
 
 set_target_properties(yuxi PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(yuxi rlib pthread boost_coroutine boost_context boost_system)
+target_link_libraries(yuxi rlib pthread boost_coroutine boost_context boost_system jsoncpp)
