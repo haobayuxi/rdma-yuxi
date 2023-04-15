@@ -18,8 +18,11 @@ endif()
 include_directories(
     core
     thirdparty
+    peer
 )
 
 add_subdirectory(thirdparty/rlib)
 
 add_subdirectory(core)
+
+add_subdirectory(peer)
