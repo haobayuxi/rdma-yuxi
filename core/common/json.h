@@ -1,7 +1,7 @@
 
 #include <json/json.h>
 
-#include "config.h"
+#include "common.h"
 
 SystemConfig read_config_from_file() {
   std::string config_file = "system_config.json";

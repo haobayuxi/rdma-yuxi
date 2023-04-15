@@ -3,13 +3,14 @@
 
 #pragma once
 
-// Use symmetric_coroutine from boost::coroutine, not asymmetric_coroutine from boost::coroutine2
-// symmetric_coroutine meets transaction processing, in which each coroutine can freely yield to another
+// Use symmetric_coroutine from boost::coroutine, not asymmetric_coroutine from
+// boost::coroutine2 symmetric_coroutine meets transaction processing, in which
+// each coroutine can freely yield to another
 #define BOOST_COROUTINES_NO_DEPRECATION_WARNING
 
 #include <boost/coroutine/all.hpp>
 
-#include "base/common.h"
+#include "common/common.h"
 
 using coro_call_t = boost::coroutines::symmetric_coroutine<void>::call_type;
 
@@ -19,7 +20,8 @@ using coro_yield_t = boost::coroutines::symmetric_coroutine<void>::yield_type;
 struct Coroutine {
   Coroutine() : is_wait_poll(false) {}
 
-  // Wether I am waiting for polling network replies. If true, I leave the yield-able coroutine list
+  // Wether I am waiting for polling network replies. If true, I leave the
+  // yield-able coroutine list
   bool is_wait_poll;
 
   // My coroutine ID
