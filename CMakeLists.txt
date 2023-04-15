@@ -17,11 +17,14 @@ endif()
 include_directories(
     thirdparty
     core
+    workload
     peer
 )
 
 add_subdirectory(thirdparty/rlib)
 
 add_subdirectory(core)
+
+add_subdirectory(workload)
 
 add_subdirectory(peer)

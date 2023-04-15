@@ -1,6 +1,8 @@
 
 #include <json/json.h>
 
+#include <string>
+
 #include "common.h"
 
 SystemConfig read_config_from_file() {

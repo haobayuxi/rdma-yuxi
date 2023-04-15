@@ -2,9 +2,10 @@
 
 class Server {
  public:
-  Server(int id) : server_id(id) {}
+  Server(int id, SystemConfig config) : server_id(id), config(config) {}
 
- private:
-  const int server_id;
-  const std::string s;
-}
+  ~Server() {}
+
+  Void InitData() private : const int server_id;
+  const SystemConfig config;
+};

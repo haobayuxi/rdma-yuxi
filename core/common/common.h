@@ -20,26 +20,11 @@ using offset_t =
 using version_t = uint64_t;  // Version type, used in version checking
 using lock_t = uint64_t;     // Lock type, used in remote locking
 
-// Memory region ids for server's hash store buffer and undo log buffer
-const mr_id_t SERVER_HASH_BUFF_ID = 97;
-const mr_id_t SERVER_LOG_BUFF_ID = 98;
-
 // Memory region ids for client's local_mr
 const mr_id_t CLIENT_MR_ID = 100;
 
 // Indicating that memory store metas have been transmitted
 const uint64_t MEM_STORE_META_END = 0xE0FF0E0F;
-
-// Node and thread conf
-#define BACKUP_DEGREE 2  // Backup memory node number. MUST **NOT** BE SET TO 0
-#define MAX_REMOTE_NODE_NUM 100  // Max remote memory node number
-#define MAX_DB_TABLE_NUM 15      // Max DB tables
-
-// Data state
-#define STATE_INVISIBLE 0x8000000000000000  // Data cannot be read
-#define STATE_LOCKED \
-  1  // Data cannot be written. Used for serializing transactions
-#define STATE_CLEAN 0
 
 // Alias
 #define Aligned8 __attribute__((aligned(8)))
@@ -53,4 +38,5 @@ const uint64_t MEM_STORE_META_END = 0xE0FF0E0F;
 struct SystemConfig {
   int executor_num;
   vector<string> server_addrs;
+  string db_type;
 };
