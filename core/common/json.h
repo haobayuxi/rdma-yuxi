@@ -7,10 +7,10 @@
 #include "common.h"
 
 SystemConfig read_config_from_file() {
-  std::string config_file = "system_config.json";
+  //   std::string config_file = "system_config.json";
   Json::Reader reader;
   Json::Value root;
-  ifstream srcFile(config_file, ios::binary);
+  ifstream srcFile("system_config.json", ios::binary);
   if (!srcFile.is_open()) {
     std::cout << "file not open" << endl;
   }
