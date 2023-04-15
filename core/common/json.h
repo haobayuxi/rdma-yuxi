@@ -11,5 +11,7 @@ SystemConfig read_config_from_file() {
   reader.parse(srcFile, root);
 
   struct SystemConfig sys_config;
+  sys_config.executor_num = root["executor_num"];
+  sys_config.server_addrs = root["server_addrs"];
   return sys_config;
 }

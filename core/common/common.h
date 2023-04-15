@@ -3,6 +3,7 @@
 #include <cstddef>  // For size_t
 #include <cstdint>  // For uintxx_t
 #include <unordered_map>
+#include <vector>
 
 using namespace std;
 
@@ -51,5 +52,5 @@ const uint64_t MEM_STORE_META_END = 0xE0FF0E0F;
 
 struct SystemConfig {
   int executor_num;
-  unordered_map<int, std::string> server_addrs;
+  vector<string> server_addrs;
 };
