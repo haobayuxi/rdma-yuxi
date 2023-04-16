@@ -50,25 +50,27 @@ int main(int argc, char *argv[]) {
   int msg_len = 11;  // length of "hello world"
 
   // read an uint64_t from the server
-  auto start_time = system_clock::now();
-  auto rc = qp->post_send(IBV_WR_RDMA_READ, local_buf, msg_len, address,
-                          IBV_SEND_SIGNALED);
-  //   if (rc == SUCC) {
-  //     printf("client: post ok\n");
-  //   } else {
-  //     printf("client: post fail. rc=%d\n", rc);
-  //   }
-  rc = qp->poll_till_completion(wc, no_timeout);
-  // then get the results, stored in the local_buffer
-  if (rc == SUCC) {
-    auto end_time = system_clock::now();
-    auto microseconds_since_epoch =
-        duration_cast<microseconds>(end_time - start_time)
-            .count();  // 将时长转换为微秒数
-    printf("client: poll ok %d\n", microseconds_since_epoch);
-    printf("msg read: %s\n", local_buf);
-  } else {
-    printf("client: poll fail. rc=%d\n", rc);
+  for (int i = 0; i < 100; i++) {
+    auto start_time = system_clock::now();
+    auto rc = qp->post_send(IBV_WR_RDMA_READ, local_buf, msg_len, address,
+                            IBV_SEND_SIGNALED);
+    //   if (rc == SUCC) {
+    //     printf("client: post ok\n");
+    //   } else {
+    //     printf("client: post fail. rc=%d\n", rc);
+    //   }
+    rc = qp->poll_till_completion(wc, no_timeout);
+    // then get the results, stored in the local_buffer
+    if (rc == SUCC) {
+      auto end_time = system_clock::now();
+      auto microseconds_since_epoch =
+          duration_cast<microseconds>(end_time - start_time)
+              .count();  // 将时长转换为微秒数
+      printf("client: poll ok %d\n", microseconds_since_epoch);
+      // printf("msg read: %s\n", local_buf);
+    } else {
+      printf("client: poll fail. rc=%d\n", rc);
+    }
   }
 
   return 0;
