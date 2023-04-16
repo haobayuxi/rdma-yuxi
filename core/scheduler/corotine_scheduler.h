@@ -18,23 +18,18 @@ class CoroutineScheduler {
   CoroutineScheduler(t_id_t thread_id, coro_id_t coro_num) {
     t_id = thread_id;
     pending_counts = new int[coro_num];
-    pending_log_counts = new int[coro_num];
     for (coro_id_t c = 0; c < coro_num; c++) {
       pending_counts[c] = 0;
-      pending_log_counts[c] = 0;
     }
     coro_array = new Coroutine[coro_num];
   }
   ~CoroutineScheduler() {
     if (pending_counts) delete[] pending_counts;
-    if (pending_log_counts) delete[] pending_log_counts;
     if (coro_array) delete[] coro_array;
   }
 
   // For RDMA requests
   void AddPendingQP(coro_id_t coro_id, RCQP* qp);
-
-  void AddPendingLogQP(coro_id_t coro_id, RCQP* qp);
 
   bool RDMABatch(coro_id_t coro_id, RCQP* qp, ibv_send_wr* send_sr,
                  ibv_send_wr** bad_sr_addr, int doorbell_num);
@@ -49,14 +44,8 @@ class CoroutineScheduler {
                  uint64_t remote_offset, size_t size, MemoryAttr& local_mr,
                  MemoryAttr& remote_mr);
 
-  bool RDMALog(coro_id_t coro_id, tx_id_t tx_id, RCQP* qp, char* wt_data,
-               uint64_t remote_offset, size_t size);
-
   bool RDMARead(coro_id_t coro_id, RCQP* qp, char* rd_data,
                 uint64_t remote_offset, size_t size);
-
-  bool RDMAReadInv(coro_id_t coro_id, RCQP* qp, char* rd_data,
-                   uint64_t remote_offset, size_t size);
 
   bool RDMAReadSync(coro_id_t coro_id, RCQP* qp, char* rd_data,
                     uint64_t remote_offset, size_t size);
@@ -65,13 +54,7 @@ class CoroutineScheduler {
                uint64_t remote_offset, uint64_t compare, uint64_t swap);
 
   // For polling
-  void PollCompletion();  // There is a coroutine polling ACKs
-
-  void PollRegularCompletion();
-
-  void PollLogCompletion();
-
-  bool CheckLogAck(coro_id_t c_id);
+  void PollCompletion();
 
   // Link coroutines in a loop manner
   void LoopLinkCoroutine(coro_id_t coro_num);
@@ -98,25 +81,14 @@ class CoroutineScheduler {
 
   std::list<RCQP*> pending_qps;
 
-  std::list<RCQP*> pending_log_qps;
-
   // number of pending qps (i.e., the ack has not received) per coroutine
   int* pending_counts;
-
-  // number of pending log qps (i.e., the ack has not received) per coroutine
-  int* pending_log_counts;
 };
 
 ALWAYS_INLINE
 void CoroutineScheduler::AddPendingQP(coro_id_t coro_id, RCQP* qp) {
   pending_qps.push_back(qp);
   pending_counts[coro_id] += 1;
-}
-
-ALWAYS_INLINE
-void CoroutineScheduler::AddPendingLogQP(coro_id_t coro_id, RCQP* qp) {
-  pending_log_qps.push_back(qp);
-  pending_log_counts[coro_id] += 1;
 }
 
 ALWAYS_INLINE

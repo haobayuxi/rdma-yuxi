@@ -20,6 +20,7 @@ using offset_t =
 using version_t = uint64_t;  // Version type, used in version checking
 using lock_t = uint64_t;     // Lock type, used in remote locking
 
+const int net_handler_thread_num = 2;
 // Memory region ids for client's local_mr
 const mr_id_t CLIENT_MR_ID = 100;
 

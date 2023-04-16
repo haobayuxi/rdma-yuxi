@@ -6,7 +6,9 @@ class Server {
 
   ~Server() {}
 
-  // void InitData();
+  void GenThreads();
+
+  void InitData();
 
  private:
   const int server_id;

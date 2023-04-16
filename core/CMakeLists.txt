@@ -11,7 +11,7 @@ set(SCHEDULER_SRC
 
 add_library(yuxi STATIC
         ${CONNECTION_SRC}
-        # ${SCHEDULER_SRC}
+        ${SCHEDULER_SRC}
         )
 
 set_target_properties(yuxi PROPERTIES LINKER_LANGUAGE CXX)
