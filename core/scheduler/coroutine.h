@@ -11,6 +11,7 @@
 #include <boost/coroutine/all.hpp>
 
 #include "common/common.h"
+#include "rlib/logging.hpp"
 
 using coro_call_t = boost::coroutines::symmetric_coroutine<void>::call_type;
 
