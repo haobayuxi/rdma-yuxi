@@ -5,5 +5,24 @@
         "192.168.1.72",
         "192.168.1.73"
     ],
-    "db_type": "micro"
+    "db_type": "micro",
+    "cto_node": {
+        "ip": "192.168.3.72",
+        "port": 10001
+    },
+    "server_nodes": {
+        "ips": [
+            "192.168.3.72"
+        ],
+        "ports": 10001
+    },
+    "local_node": {
+        "machine_num": 1,
+        "machine_id": 0,
+        "thread_num_per_machine": 16,
+        "coroutine_num": 8,
+        "local_port": 12345,
+        "txn_system": 2,
+        "comment": "0 is farm, 1 is drtmh, 2 is ford"
+    }
 }
