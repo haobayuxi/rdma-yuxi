@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
           duration_cast<microseconds>(end_time - start_time)
               .count();  // 将时长转换为微秒数
       printf("client: poll ok %d\n", microseconds_since_epoch);
-      // printf("msg read: %s\n", local_buf);
+      printf("msg read: %s\n", local_buf);
     } else {
       printf("client: poll fail. rc=%d\n", rc);
     }
