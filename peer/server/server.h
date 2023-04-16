@@ -10,6 +10,8 @@ class Server {
 
   void InitData();
 
+  void InitRdma();
+
  private:
   const int server_id;
   const SystemConfig config;
