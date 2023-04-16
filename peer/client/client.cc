@@ -18,22 +18,22 @@ int main(int argc, char *argv[]) {
   // register a buffer to the previous opened device, using id = 73
   char *buffer = (char *)malloc(4096);
   memset(buffer, 0, 4096);
-  RDMA_ASSERT(c->register_memory(73, buffer, 4096, c->get_device()) == true);
+  RDMA_ASSERT(c->register_memory(MR_ID, buffer, 4096, c->get_device()) == true);
 
   // get remote server's memory information
   MemoryAttr remote_mr;
-  while (QP::get_remote_mr("192.168.3.72", server_port, 73, &remote_mr) !=
+  while (QP::get_remote_mr("192.168.3.72", server_port, MR_ID, &remote_mr) !=
          SUCC) {
     usleep(2000);
   }
 
   // create the RC qp to access remote server's memory, using the previous
   // registered memory
-  MemoryAttr local_mr = c->get_local_mr(73);
+  MemoryAttr local_mr = c->get_local_mr(MR_ID);
   RCQP *qp = c->create_rc_qp(create_rc_idx(1, 0), c->get_device(), &local_mr);
   qp->bind_remote_mr(remote_mr);  // bind to the previous allocated mr
 
-  while (qp->connect("localhost", server_port) != SUCC) {
+  while (qp->connect("192.168.3.72", server_port) != SUCC) {
     usleep(2000);
   }
 
