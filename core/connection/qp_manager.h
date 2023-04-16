@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "common/common.h"
 #include "connection/meta_manager.h"
 
 // This QPManager builds qp connections (compute node <-> memory node) for each

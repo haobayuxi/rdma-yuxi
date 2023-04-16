@@ -6,6 +6,7 @@
 #include <atomic>
 #include <unordered_map>
 
+#include "common/common.h"
 #include "rlib/rdma_ctrl.hpp"
 
 using namespace rdmaio;

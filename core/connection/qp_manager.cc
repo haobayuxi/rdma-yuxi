@@ -4,8 +4,6 @@
 
 void QPManager::BuildQPConnection(MetaManager* meta_man) {
   for (const auto& remote_node : meta_man->remote_nodes) {
-    MemoryAttr remote_hash_mr = meta_man->GetRemoteHashMR(remote_node.node_id);
-
     // Build QPs with one remote machine (this machine can be a primary or a
     // backup) Create the thread local queue pair
     MemoryAttr local_mr =
