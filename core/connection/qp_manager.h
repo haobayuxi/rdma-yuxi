@@ -31,7 +31,7 @@ class QPManager {
   }
 
  private:
-  RCQP* data_qps[MAX_REMOTE_NODE_NUM]{nullptr};
+  RCQP* data_qps[3]{nullptr};
 
   t_id_t global_tid;
 };

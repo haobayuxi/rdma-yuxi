@@ -22,10 +22,7 @@ using lock_t = uint64_t;     // Lock type, used in remote locking
 
 const int net_handler_thread_num = 2;
 // Memory region ids for client's local_mr
-const mr_id_t CLIENT_MR_ID = 100;
-
-// Indicating that memory store metas have been transmitted
-const uint64_t MEM_STORE_META_END = 0xE0FF0E0F;
+const mr_id_t MR_ID = 100;
 
 // Alias
 #define Aligned8 __attribute__((aligned(8)))
