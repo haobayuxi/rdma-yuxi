@@ -58,11 +58,11 @@ class Handler {
   void write_with_imm(char *buf, size_t size);
   inline void post_write(size_t size, size_t offset);
   void set_fd(int fd_);
-  inline int poll_send_cq();
+  int poll_send_cq();
   void modify_qp_to_rts_and_rtr();
   int get_lid();
   void reg_buffer();
-  inline void poll_recv_cq();
+  void poll_recv_cq();
 
  private:
   struct ibv_context *context;
