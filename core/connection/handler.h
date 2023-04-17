@@ -17,12 +17,15 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <string>
+
 #define DEPTH 100
 #define NUM_RTTS 100
 #define TICKS_PER_USEC 2400
 #define M_RC 0x0
 #define M_UC 0x1
 #define M_UD 0x2
+#define SOCKET_ERROR -1
 
 #define CHECK(val, msg)                 \
   if (val) {                            \
