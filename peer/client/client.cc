@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
   auto fd = dialTo("192.168.3.72", tcp_port);
   auto handler = std::make_shared<Handler>();
-  handler.fd = fd;
+  handler.set_fd(fd);
   handler.get_context_info(rdma_ib_info);
   handler.build_rdma_connection();
 

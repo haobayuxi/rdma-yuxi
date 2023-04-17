@@ -67,9 +67,13 @@ int main(int argc, char *argv[]) {
   auto listener = listenOn(tcp_port);
   auto fd = acceptAt(listener);
   auto handler = std::make_shared<Handler>();
-  handler.fd = fd;
+  handler.set_fd(fd);
   handler.get_context_info(rdma_ib_info);
   handler.build_rdma_connection();
+
+  while (1) {
+    sleep(1);
+  }
   // RdmaCtrl *c = new RdmaCtrl(server_node_id, tcp_port);
   // RdmaCtrl::DevIdx idx{.dev_id = 0,
   //                      .port_id = 1};  // using the first RNIC's first port
