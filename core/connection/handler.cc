@@ -16,6 +16,19 @@ inline int Handler::poll_send_cq() {
   return 0;
 }
 
+inline void Handler::poll_recv_cq() {
+  struct ibv_wc wc;
+
+  while (ibv_poll_cq(recv_cq, 1, &wc) < 1)
+    ;
+  if (wc.status != IBV_WC_SUCCESS) {
+    printf("Ibv_poll_cq error!\n");
+    printf("Error: %s\n", strerror(errno));
+    return;
+  }
+  printf("poll cq success %d！\n", wc.imm_data);
+}
+
 inline void Handler::post_write(size_t size, size_t offset) {
   struct ibv_sge sge = {(uint64_t)buf + offset, (uint32_t)size, mr->lkey};
   struct ibv_send_wr send_wr;
@@ -24,7 +37,7 @@ inline void Handler::post_write(size_t size, size_t offset) {
   send_wr.next = NULL;
   send_wr.sg_list = &sge;
   send_wr.num_sge = 1;
-  send_wr.imm_data = 0;
+  send_wr.imm_data = 1;
   send_wr.opcode = IBV_WR_RDMA_WRITE_WITH_IMM;
   send_wr.wr.rdma.remote_addr =
       r_private_data->buffer_addr + send_buf_size + offset;

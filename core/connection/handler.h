@@ -62,6 +62,7 @@ class Handler {
   void modify_qp_to_rts_and_rtr();
   int get_lid();
   void reg_buffer();
+  inline void poll_recv_cq();
 
  private:
   struct ibv_context *context;
