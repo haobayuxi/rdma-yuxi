@@ -67,9 +67,9 @@ int main(int argc, char *argv[]) {
   auto listener = listenOn(tcp_port);
   auto fd = acceptAt(listener);
   auto handler = std::make_shared<Handler>();
-  handler.set_fd(fd);
-  handler.get_context_info(rdma_ib_info);
-  handler.build_rdma_connection();
+  handler->set_fd(fd);
+  handler->get_context_info(rdma_ib_info);
+  handler->build_rdma_connection();
 
   while (1) {
     sleep(1);
