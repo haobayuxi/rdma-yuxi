@@ -2,7 +2,7 @@
 
 void Handler::set_fd(int fd_) { fd = fd_; }
 
-inline int Handler::poll_send_cq() {
+int Handler::poll_send_cq() {
   struct ibv_wc wc;
   while (ibv_poll_cq(send_cq, 1, &wc) < 1)
     ;
@@ -16,7 +16,7 @@ inline int Handler::poll_send_cq() {
   return 0;
 }
 
-inline void Handler::poll_recv_cq() {
+void Handler::poll_recv_cq() {
   struct ibv_wc wc;
 
   while (ibv_poll_cq(recv_cq, 1, &wc) < 1)
