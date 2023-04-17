@@ -5,6 +5,7 @@
 
 #include "common/common.h"
 #include "common/json.h"
+#include "connection/handler.h"
 #include "rlib/rdma_ctrl.hpp"
 
 using namespace std;
@@ -59,34 +60,45 @@ void Server::InitRdma() {}
 int main(int argc, char *argv[]) {
   int server_node_id = 1;
   int tcp_port = 10001;
-  RdmaCtrl *c = new RdmaCtrl(server_node_id, tcp_port);
-  RdmaCtrl::DevIdx idx{.dev_id = 0,
-                       .port_id = 1};  // using the first RNIC's first port
-  c->open_thread_local_device(idx);
 
-  // register a buffer to the previous opened device, using id = 73
-  char *buffer = (char *)malloc(4096);
-  memset(buffer, 0, 4096);
-  RDMA_ASSERT(c->register_memory(MR_ID, buffer, 4096, c->get_device()) == true);
+  auto rdma_ib_info = (context_info *)malloc(sizeof(context_info));
+  open_device_and_alloc_pd(rdma_ib_info);
 
-  char s[] = "hello world";
-  memcpy(buffer, s, strlen(s));
+  auto listener = listenOn(tcp_port);
+  auto fd = acceptAt(listener);
+  auto handler = std::make_shared<handler>();
+  handler.fd = fd;
+  handler.build_rdma_connection();
+  // RdmaCtrl *c = new RdmaCtrl(server_node_id, tcp_port);
+  // RdmaCtrl::DevIdx idx{.dev_id = 0,
+  //                      .port_id = 1};  // using the first RNIC's first port
+  // c->open_thread_local_device(idx);
 
-  // MemoryAttr local_mr = c->get_local_mr(MR_ID);
-  // RCQP *qp = c->create_rc_qp(create_rc_idx(1, 0), c->get_device(),
-  // &local_mr);
+  // // register a buffer to the previous opened device, using id = 73
+  // char *buffer = (char *)malloc(4096);
+  // memset(buffer, 0, 4096);
+  // RDMA_ASSERT(c->register_memory(MR_ID, buffer, 4096, c->get_device()) ==
+  // true);
 
-  // // server also needs to "connect" clinet.
-  // while (qp->connect("localhost", client_port, create_rc_idx(1, 0)) != SUCC)
-  // {
-  //   usleep(2000);
+  // char s[] = "hello world";
+  // memcpy(buffer, s, strlen(s));
+
+  // // MemoryAttr local_mr = c->get_local_mr(MR_ID);
+  // // RCQP *qp = c->create_rc_qp(create_rc_idx(1, 0), c->get_device(),
+  // // &local_mr);
+
+  // // // server also needs to "connect" clinet.
+  // // while (qp->connect("localhost", client_port, create_rc_idx(1, 0)) !=
+  // SUCC)
+  // // {
+  // //   usleep(2000);
+  // // }
+
+  // printf("server: QP init!\n");
+  // while (true) {
+  //   // This is RDMA, server does not need to do anything :)
+  //   sleep(1);
   // }
-
-  printf("server: QP init!\n");
-  while (true) {
-    // This is RDMA, server does not need to do anything :)
-    sleep(1);
-  }
 
   return 0;
 }

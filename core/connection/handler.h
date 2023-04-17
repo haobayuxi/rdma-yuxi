@@ -46,6 +46,9 @@ class handler {
  public:
   int build_rdma_connection();
   int get_context_info(context_info *ib_info);
+  void sync_qp_info();
+  void create_cq_and_qp(int max_depth, enum ibv_qp_type qp_type);
+  void init_qp();
 
  private:
   struct ibv_context *context;
