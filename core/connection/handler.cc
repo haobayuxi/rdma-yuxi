@@ -185,9 +185,9 @@ void Handler::modify_qp_to_rts_and_rtr() {
     qp_attr.ah_attr.port_num = ib_port_base;
   }
   printf("IB port: %d\n", ib_port_base);
-  ibv_modify_qp(qp, &qp_attr, flags);
+  //   ibv_modify_qp(qp, &qp_attr, flags);
 
-  printf("modify qp \n");
+  //   printf("modify qp \n");
   qp_attr.qp_state = IBV_QPS_RTS;
   flags = IBV_QP_STATE | IBV_QP_SQ_PSN;
   if (mode == M_UD) {
@@ -204,6 +204,7 @@ void Handler::modify_qp_to_rts_and_rtr() {
     }
   }
   ibv_modify_qp(qp, &qp_attr, flags);
+  printf("modify qp \n");
 }
 
 int Handler::build_rdma_connection() {
