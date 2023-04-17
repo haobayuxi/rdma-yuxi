@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
   rdma_fd *handler = (rdma_fd *)malloc(sizeof(rdma_fd));
   handler->fd = fd;
 
-  get_context_info(handler, r->rdma_ib_info);
+  get_context_info(handler, rdma_ib_info);
   build_rdma_connection(handler);
   printf("connection complete!\n");
   poll_recv_cq(handler);
