@@ -1,5 +1,7 @@
 #include "handler.h"
 
+void Handler::set_fd(int fd_) { fd = fd_; }
+
 static inline void Handler::post_write(size_t size, size_t offset) {
   struct ibv_sge sge = {(uint64_t)buf + offset, (uint32_t)size, mr->lkey};
   struct ibv_send_wr send_wr;

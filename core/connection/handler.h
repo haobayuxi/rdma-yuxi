@@ -49,8 +49,9 @@ class Handler {
   void sync_qp_info();
   void create_cq_and_qp(int max_depth, enum ibv_qp_type qp_type);
   void init_qp();
-  void write_with_imm();
+  void write_with_imm(char *buf, size_t size);
   static inline void post_write(size_t size, size_t offset);
+  void set_fd(int fd_);
 
  private:
   struct ibv_context *context;
