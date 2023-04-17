@@ -4,8 +4,6 @@ void Handler::set_fd(int fd_) { fd = fd_; }
 
 static inline int Handler::poll_send_cq() {
   struct ibv_wc wc;
-  // printf("handler addr: %p, handler->send_cq addr: %p\n", handler,
-  // handler->send_cq);
   while (ibv_poll_cq(send_cq, 1, &wc) < 1)
     ;
   if (wc.status != IBV_WC_SUCCESS) {
@@ -105,10 +103,10 @@ long sendData1(int sock, void *buf, size_t len) {
   return sent;
 }
 
-static int get_lid(rdma_fd *handler) {
+static int Handler::get_lid() {
   struct ibv_port_attr port_attr;
-  CPEN(handler->context);
-  CPE(ibv_query_port(handler->context, handler->ib_port_base, &port_attr));
+  CPEN(context);
+  CPE(ibv_query_port(context, ib_port_base, &port_attr));
   return port_attr.lid;
 }
 
@@ -151,7 +149,7 @@ void Handler::sync_qp_info() {
          r_private_data->buffer_length);
 }
 
-static void modify_qp_to_rts_and_rtr(rdma_fd *handler) {
+static void Handler::modify_qp_to_rts_and_rtr() {
   struct ibv_qp_attr qp_attr;
   FILL(qp_attr);
   int flags;
@@ -215,6 +213,18 @@ int Handler::build_rdma_connection() {
   create_cq_and_qp(handler, 100, IBV_QPT_RC);
   sync_qp_info(handler);
   modify_qp_to_rts_and_rtr(handler);
+}
+
+static void Handler::reg_buffer() {
+  int flags = IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE |
+              IBV_ACCESS_REMOTE_READ | IBV_ACCESS_REMOTE_ATOMIC;
+  if (mr == NULL) {
+    mr = ibv_reg_mr(pd, buf, buf_size, flags);
+    CPEN(mr);
+  } else {
+    printf("Already register\n");
+    return;
+  }
 }
 
 int Handler::get_context_info(context_info *ib_info) {

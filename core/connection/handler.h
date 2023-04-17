@@ -23,6 +23,37 @@
 #define M_RC 0x0
 #define M_UC 0x1
 #define M_UD 0x2
+#define SOCKET_ERROR -1
+
+#define CHECK(val, msg)                 \
+  if (val) {                            \
+    printf("error: %d %s\n", val, msg); \
+    exit(-1);                           \
+  }
+
+#define CPEA(ret)                           \
+  if (!ret) {                               \
+    PRINT_LINE                              \
+    printf("ERROR: %s\n", strerror(errno)); \
+    printf("ERROR: NULL\n");                \
+    exit(1);                                \
+  }
+
+#define CPEN(ret)                             \
+  if (ret == NULL) {                          \
+    PRINT_LINE                                \
+    printf("ERROR: %s\n", strerror(h_errno)); \
+    printf("ERROR: NULL\n");                  \
+    exit(1);                                  \
+  }
+
+#define CPE(ret)                            \
+  if (ret) {                                \
+    PRINT_LINE                              \
+    printf("ERROR: %s\n", strerror(errno)); \
+    printf("ERROR CODE: %d\n", ret);        \
+    exit(ret);                              \
+  }
 
 #define FILL(st)                \
   do {                          \
@@ -58,6 +89,9 @@ class Handler {
   static inline void post_write(size_t size, size_t offset);
   void set_fd(int fd_);
   static inline int poll_send_cq();
+  static void modify_qp_to_rts_and_rtr();
+  static int get_lid();
+  static void reg_buffer();
 
  private:
   struct ibv_context *context;
@@ -85,10 +119,6 @@ class Handler {
   bool is_on;  // to tell the fd is normal and can work or not;
   uint32_t qkey;
 };
-
-int server_exchange(const char *server, uint16_t port);
-
-int client_exchange(const char *server, uint16_t port);
 
 int open_device_and_alloc_pd(context_info *ib_info);
 
