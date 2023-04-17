@@ -1,8 +1,11 @@
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <getopt.h>
 #include <infiniband/verbs.h>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +14,8 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+
+#include <string>
 
 #define DEPTH 100
 #define NUM_RTTS 100
@@ -52,6 +57,7 @@ class Handler {
   void write_with_imm(char *buf, size_t size);
   static inline void post_write(size_t size, size_t offset);
   void set_fd(int fd_);
+  static inline int poll_send_cq();
 
  private:
   struct ibv_context *context;

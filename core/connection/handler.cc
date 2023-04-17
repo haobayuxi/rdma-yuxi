@@ -2,6 +2,22 @@
 
 void Handler::set_fd(int fd_) { fd = fd_; }
 
+static inline int Handler::poll_send_cq() {
+  struct ibv_wc wc;
+  // printf("handler addr: %p, handler->send_cq addr: %p\n", handler,
+  // handler->send_cq);
+  while (ibv_poll_cq(send_cq, 1, &wc) < 1)
+    ;
+  if (wc.status != IBV_WC_SUCCESS) {
+    printf("Status: %d\n", wc.status);
+    printf("Ibv_poll_cq error!\n");
+    printf("Error: %s\n", strerror(errno));
+    return -1;
+  }
+  printf("poll cq success！\n");
+  return 0;
+}
+
 static inline void Handler::post_write(size_t size, size_t offset) {
   struct ibv_sge sge = {(uint64_t)buf + offset, (uint32_t)size, mr->lkey};
   struct ibv_send_wr send_wr;
@@ -26,7 +42,18 @@ void Handler::write_with_imm(char *buf, size_t size) {
   post_write(handler, size, have_send);
 
   auto ret = poll_send_cq(handler);
-  println("%d", ret);
+  printf("%d \n", ret);
+}
+
+static struct ibv_device *get_ib_device(int index) {
+  struct ibv_device **devices;
+  int num;
+  devices = ibv_get_device_list(&num);
+  if (index >= num) {
+    printf("Not have the deivce\n");
+    return NULL;
+  }
+  return devices[index];
 }
 
 int open_device_and_alloc_pd(context_info *ib_info) {
@@ -76,6 +103,13 @@ long sendData1(int sock, void *buf, size_t len) {
     sent += realWriteCount;
   }
   return sent;
+}
+
+static int get_lid(rdma_fd *handler) {
+  struct ibv_port_attr port_attr;
+  CPEN(handler->context);
+  CPE(ibv_query_port(handler->context, handler->ib_port_base, &port_attr));
+  return port_attr.lid;
 }
 
 void Handler::sync_qp_info() {
