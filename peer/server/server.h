@@ -1,4 +1,5 @@
 #include "common/common.h"
+#include "connection/handler.h"
 
 class Server {
  public:

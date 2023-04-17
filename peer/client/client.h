@@ -1,4 +1,5 @@
 #include "common/json.h"
+#include "connection/handler.h"
 
 class Client {
  public:
