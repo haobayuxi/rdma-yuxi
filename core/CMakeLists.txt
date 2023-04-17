@@ -3,6 +3,8 @@
 
 set(CONNECTION_SRC
         connection/qp_manager.cc
+        connection/handler.cc
+        
         )
 
 set(SCHEDULER_SRC
