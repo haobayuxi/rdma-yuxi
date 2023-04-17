@@ -42,13 +42,15 @@ struct context_info {
   struct ibv_pd *pd;
 };
 
-class handler {
+class Handler {
  public:
   int build_rdma_connection();
   int get_context_info(context_info *ib_info);
   void sync_qp_info();
   void create_cq_and_qp(int max_depth, enum ibv_qp_type qp_type);
   void init_qp();
+  void write_with_imm();
+  static inline void post_write(size_t size, size_t offset);
 
  private:
   struct ibv_context *context;
@@ -82,3 +84,9 @@ int server_exchange(const char *server, uint16_t port);
 int client_exchange(const char *server, uint16_t port);
 
 int open_device_and_alloc_pd(context_info *ib_info);
+
+int listenOn(uint16_t port);
+
+int acceptAt(int sock);
+
+int dialTo(const std::string &remoteIP, uint16_t port);

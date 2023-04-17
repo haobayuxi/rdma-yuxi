@@ -1,5 +1,32 @@
 #include "handler.h"
 
+static inline void Handler::post_write(size_t size, size_t offset) {
+  struct ibv_sge sge = {(uint64_t)buf + offset, (uint32_t)size, mr->lkey};
+  struct ibv_send_wr send_wr;
+  FILL(send_wr);
+  send_wr.wr_id = 1;
+  send_wr.next = NULL;
+  send_wr.sg_list = &sge;
+  send_wr.num_sge = 1;
+  send_wr.imm_data = 0;
+  send_wr.opcode = IBV_WR_RDMA_WRITE_WITH_IMM;
+  send_wr.wr.rdma.remote_addr =
+      r_private_data->buffer_addr + send_buf_size + offset;
+  send_wr.wr.rdma.rkey = r_private_data->buffer_rkey;
+  send_wr.send_flags = IBV_SEND_SIGNALED;
+
+  struct ibv_send_wr *bad_send_wr;
+  CPE(ibv_post_send(qp, &send_wr, &bad_send_wr));
+}
+
+void Handler::write_with_imm(char *buf, size_t size) {
+  memcpy(buf + write_offset, buf, size);
+  post_write(handler, size, have_send);
+
+  auto ret = poll_send_cq(handler);
+  println("%d", ret);
+}
+
 int open_device_and_alloc_pd(context_info *ib_info) {
   struct ibv_device *dev = get_ib_device(0);
   ib_info->dev = dev;
@@ -49,7 +76,7 @@ long sendData1(int sock, void *buf, size_t len) {
   return sent;
 }
 
-void handler::sync_qp_info() {
+void Handler::sync_qp_info() {
   srand(time(NULL));
   l_qp_info = (exchange_info *)malloc(sizeof(struct exchange_info));
   l_qp_info->psn = lrand48() & 0xffffff;
@@ -133,44 +160,7 @@ static void modify_qp_to_rts_and_rtr(rdma_fd *handler) {
   CPE(ibv_modify_qp(qp, &qp_attr, flags));
 }
 
-int client_exchange(const char *server, uint16_t port) {
-  int s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (s == -1) {
-    printf("SOCK ERROR!\n");
-  }
-  struct sockaddr_in sin;
-  FILL(sin);
-  sin.sin_family = PF_INET;
-  sin.sin_port = htons(port);
-  sin.sin_addr = inet_addr(server);
-  m_nano_sleep(50000000);
-  CPE((connect(s, (struct sockaddr *)&sin, sizeof(sin)) == -1));
-  return s;
-}
-
-int server_exchange(const char *server, uint16_t port) {
-  int s = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (s == -1) {
-    printf("SOCK ERROR!\n");
-    exit(1);
-  }
-  int on = 1;
-  CPE((setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &on, sizeof on) == -1));
-  struct sockaddr_in sin;
-  FILL(sin);
-  sin.sin_family = PF_INET;
-  sin.sin_port = htons(port);
-  sin.sin_addr.s_addr = inet_addr(server);
-  CPE((bind(s, (struct sockaddr *)&sin, sizeof(sin)) == -1));
-  CPE((listen(s, 1) == -1));
-  struct sockaddr_in csin;
-  socklen_t csinsize = sizeof(csin);
-  int c = accept(s, (struct sockaddr *)&csin, &csinsize);
-  CPE((c == -1));
-  return c;
-}
-
-int handler::build_rdma_connection() {
+int Handler::build_rdma_connection() {
   mode = M_RC;
   ib_port_base = 1;
   buf_size = 1024 * 1024 * 1024;
@@ -191,14 +181,14 @@ int handler::build_rdma_connection() {
   modify_qp_to_rts_and_rtr(handler);
 }
 
-int handler::get_context_info(context_info *ib_info) {
+int Handler::get_context_info(context_info *ib_info) {
   context = ib_info->context;
   //      dev = ib_info->dev;
   pd = ib_info->pd;
   return 0;
 }
 
-void handler::init_qp() {
+void Handler::init_qp() {
   struct ibv_qp_attr qp_attr;
   FILL(qp_attr);
   qp_attr.qp_state = IBV_QPS_INIT;
@@ -221,7 +211,7 @@ void handler::init_qp() {
   //	printf("QPNum = %d\n",   qp->qp_num);
 }
 
-void handler::create_cq_and_qp(int max_depth, enum ibv_qp_type qp_type) {
+void Handler::create_cq_and_qp(int max_depth, enum ibv_qp_type qp_type) {
   send_cq = NULL;
   recv_cq = NULL;
   qp = NULL;
@@ -246,4 +236,89 @@ void handler::create_cq_and_qp(int max_depth, enum ibv_qp_type qp_type) {
   qp = ibv_create_qp(pd, &qp_init_attr);
   CPEN(qp);
   init_qp(handler);
+}
+
+int listenOn(uint16_t port) {
+  struct sockaddr_in addr;
+  bzero(&addr, sizeof(addr));
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = htons(INADDR_ANY);
+  addr.sin_port = htons(port);
+  int _socket = socket(PF_INET, SOCK_STREAM, 0);
+  if (_socket < 0) return _socket;
+  int keepAlive = 1;
+  int keepIdle = 3;
+  int keepInterval = 2;
+  int keepCount = 3;
+  if (setsockopt(_socket, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepAlive,
+                 sizeof(keepAlive)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep alive: %d\n", errno);
+  if (setsockopt(_socket, SOL_TCP, TCP_KEEPIDLE, (void *)&keepIdle,
+                 sizeof(keepIdle)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep Idle: %d\n", errno);
+  if (setsockopt(_socket, SOL_TCP, TCP_KEEPINTVL, (void *)&keepInterval,
+                 sizeof(keepInterval)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep Interval: %d\n", errno);
+  if (setsockopt(_socket, SOL_TCP, TCP_KEEPCNT, (void *)&keepCount,
+                 sizeof(keepCount)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep CNT: %d\n", errno);
+  if (bind(_socket, (struct sockaddr *)&addr, sizeof(addr))) return -1;
+  if (listen(_socket, GROUP_SIZE)) return -1;
+  return _socket;
+}
+
+int acceptAt(int sock) {
+  struct sockaddr_in remoteAddr;
+  socklen_t length = sizeof(remoteAddr);
+  int keepAlive = 1;
+  int keepIdle = 3;
+  int keepInterval = 2;
+  int keepCount = 3;
+  int nsock = accept(sock, (struct sockaddr *)&remoteAddr, &length);
+  if (setsockopt(nsock, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepAlive,
+                 sizeof(keepAlive)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep alive: %d\n", errno);
+  if (setsockopt(nsock, SOL_TCP, TCP_KEEPIDLE, (void *)&keepIdle,
+                 sizeof(keepIdle)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep Idle: %d\n", errno);
+  if (setsockopt(nsock, SOL_TCP, TCP_KEEPINTVL, (void *)&keepInterval,
+                 sizeof(keepInterval)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep Interval: %d\n", errno);
+  if (setsockopt(nsock, SOL_TCP, TCP_KEEPCNT, (void *)&keepCount,
+                 sizeof(keepCount)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep CNT: %d\n", errno);
+  // set_nonblocking(nsock);
+  return nsock;
+}
+
+int dialTo(const std::string &remoteIP, uint16_t port) {
+  int localSocket = socket(AF_INET, SOCK_STREAM, 0);
+  if (localSocket < 0) return localSocket;
+  struct sockaddr_in remoteAddr;
+  bzero(&remoteAddr, sizeof(remoteAddr));
+  remoteAddr.sin_family = AF_INET;
+  if (inet_aton(remoteIP.c_str(), &remoteAddr.sin_addr) == 0) return -1;
+  remoteAddr.sin_port = htons(port);
+  socklen_t remoteAddrLength = sizeof(remoteAddr);
+  if (connect(localSocket, (struct sockaddr *)&remoteAddr, remoteAddrLength) <
+      0)
+    return -1;
+  int keepAlive = 1;
+  int keepIdle = 3;
+  int keepInterval = 2;
+  int keepCount = 3;
+  if (setsockopt(localSocket, SOL_SOCKET, SO_KEEPALIVE, (void *)&keepAlive,
+                 sizeof(keepAlive)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep alive: %d\n", errno);
+  if (setsockopt(localSocket, SOL_TCP, TCP_KEEPIDLE, (void *)&keepIdle,
+                 sizeof(keepIdle)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep Idle: %d\n", errno);
+  if (setsockopt(localSocket, SOL_TCP, TCP_KEEPINTVL, (void *)&keepInterval,
+                 sizeof(keepInterval)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep Interval: %d\n", errno);
+  if (setsockopt(localSocket, SOL_TCP, TCP_KEEPCNT, (void *)&keepCount,
+                 sizeof(keepCount)) == SOCKET_ERROR)
+    fprintf(stderr, "Cannot set socket keep CNT: %d\n", errno);
+  // set_nonblocking(localSocket);
+  return localSocket;
 }
