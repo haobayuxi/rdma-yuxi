@@ -5,7 +5,6 @@
 
 #include "common/common.h"
 #include "common/json.h"
-#include "connection/handler.h"
 #include "rlib/rdma_ctrl.hpp"
 
 using namespace std;
