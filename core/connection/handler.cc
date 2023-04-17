@@ -37,8 +37,8 @@ inline void Handler::post_write(size_t size, size_t offset) {
   send_wr.next = NULL;
   send_wr.sg_list = &sge;
   send_wr.num_sge = 1;
-  send_wr.imm_data = 1;
-  send_wr.opcode = IBV_WR_RDMA_WRITE_WITH_IMM;
+  //   send_wr.imm_data = 1;
+  send_wr.opcode = IBV_WR_RDMA_WRITE;
   send_wr.wr.rdma.remote_addr =
       r_private_data->buffer_addr + send_buf_size + offset;
   send_wr.wr.rdma.rkey = r_private_data->buffer_rkey;
