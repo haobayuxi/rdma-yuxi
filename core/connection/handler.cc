@@ -2,7 +2,7 @@
 
 void Handler::set_fd(int fd_) { fd = fd_; }
 
-static inline int Handler::poll_send_cq() {
+inline int Handler::poll_send_cq() {
   struct ibv_wc wc;
   while (ibv_poll_cq(send_cq, 1, &wc) < 1)
     ;
@@ -16,7 +16,7 @@ static inline int Handler::poll_send_cq() {
   return 0;
 }
 
-static inline void Handler::post_write(size_t size, size_t offset) {
+inline void Handler::post_write(size_t size, size_t offset) {
   struct ibv_sge sge = {(uint64_t)buf + offset, (uint32_t)size, mr->lkey};
   struct ibv_send_wr send_wr;
   FILL(send_wr);
@@ -32,18 +32,18 @@ static inline void Handler::post_write(size_t size, size_t offset) {
   send_wr.send_flags = IBV_SEND_SIGNALED;
 
   struct ibv_send_wr *bad_send_wr;
-  CPE(ibv_post_send(qp, &send_wr, &bad_send_wr));
+  ibv_post_send(qp, &send_wr, &bad_send_wr);
 }
 
 void Handler::write_with_imm(char *buf, size_t size) {
   memcpy(buf + write_offset, buf, size);
-  post_write(handler, size, have_send);
+  post_write(size, have_send);
 
-  auto ret = poll_send_cq(handler);
+  auto ret = poll_send_cq();
   printf("%d \n", ret);
 }
 
-static struct ibv_device *get_ib_device(int index) {
+struct ibv_device *get_ib_device(int index) {
   struct ibv_device **devices;
   int num;
   devices = ibv_get_device_list(&num);
@@ -58,9 +58,7 @@ int open_device_and_alloc_pd(context_info *ib_info) {
   struct ibv_device *dev = get_ib_device(0);
   ib_info->dev = dev;
   ib_info->context = ibv_open_device(dev);
-  CPEN(ib_info);
   ib_info->pd = ibv_alloc_pd(ib_info->context);
-  CPEN(ib_info->context);
   return 0;
 }
 
@@ -103,10 +101,10 @@ long sendData1(int sock, void *buf, size_t len) {
   return sent;
 }
 
-static int Handler::get_lid() {
+int Handler::get_lid() {
   struct ibv_port_attr port_attr;
-  CPEN(context);
-  CPE(ibv_query_port(context, ib_port_base, &port_attr));
+  //   CPEN(context);
+  ibv_query_port(context, ib_port_base, &port_attr);
   return port_attr.lid;
 }
 
@@ -115,7 +113,7 @@ void Handler::sync_qp_info() {
   l_qp_info = (exchange_info *)malloc(sizeof(struct exchange_info));
   l_qp_info->psn = lrand48() & 0xffffff;
   l_qp_info->qpn = qp->qp_num;
-  l_qp_info->lid = get_lid(handler);
+  l_qp_info->lid = get_lid();
   l_private_data = (private_data *)malloc(sizeof(private_data));
   l_private_data->buffer_addr = (uint64_t)buf;
   l_private_data->buffer_rkey = mr->rkey;
@@ -149,7 +147,7 @@ void Handler::sync_qp_info() {
          r_private_data->buffer_length);
 }
 
-static void Handler::modify_qp_to_rts_and_rtr() {
+void Handler::modify_qp_to_rts_and_rtr() {
   struct ibv_qp_attr qp_attr;
   FILL(qp_attr);
   int flags;
@@ -174,7 +172,7 @@ static void Handler::modify_qp_to_rts_and_rtr() {
     qp_attr.ah_attr.port_num = ib_port_base;
   }
   printf("IB port: %d\n", ib_port_base);
-  CPE(ibv_modify_qp(qp, &qp_attr, flags));
+  ibv_modify_qp(qp, &qp_attr, flags);
 
   qp_attr.qp_state = IBV_QPS_RTS;
   flags = IBV_QP_STATE | IBV_QP_SQ_PSN;
@@ -191,7 +189,7 @@ static void Handler::modify_qp_to_rts_and_rtr() {
                IBV_QP_MAX_QP_RD_ATOMIC;
     }
   }
-  CPE(ibv_modify_qp(qp, &qp_attr, flags));
+  ibv_modify_qp(qp, &qp_attr, flags);
 }
 
 int Handler::build_rdma_connection() {
@@ -215,12 +213,12 @@ int Handler::build_rdma_connection() {
   modify_qp_to_rts_and_rtr(handler);
 }
 
-static void Handler::reg_buffer() {
+void Handler::reg_buffer() {
   int flags = IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE |
               IBV_ACCESS_REMOTE_READ | IBV_ACCESS_REMOTE_ATOMIC;
   if (mr == NULL) {
     mr = ibv_reg_mr(pd, buf, buf_size, flags);
-    CPEN(mr);
+    // CPEN(mr);
   } else {
     printf("Already register\n");
     return;
@@ -253,7 +251,7 @@ void Handler::init_qp() {
     flags |= IBV_QP_ACCESS_FLAGS;
   }
   //	printf("come here!\n");
-  CPE(ibv_modify_qp(qp, &qp_attr, flags));
+  ibv_modify_qp(qp, &qp_attr, flags);
   //	printf("QPNum = %d\n",   qp->qp_num);
 }
 
@@ -263,9 +261,7 @@ void Handler::create_cq_and_qp(int max_depth, enum ibv_qp_type qp_type) {
   qp = NULL;
 
   send_cq = ibv_create_cq(context, max_depth, NULL, NULL, 0);
-  CPEN(send_cq);
   recv_cq = ibv_create_cq(context, max_depth, NULL, NULL, 0);
-  CPEN(recv_cq);
 
   struct ibv_qp_init_attr qp_init_attr;
   FILL(qp_init_attr);
@@ -280,8 +276,7 @@ void Handler::create_cq_and_qp(int max_depth, enum ibv_qp_type qp_type) {
   qp_init_attr.qp_type = qp_type;
   qp_init_attr.sq_sig_all = 0;
   qp = ibv_create_qp(pd, &qp_init_attr);
-  CPEN(qp);
-  init_qp(handler);
+  init_qp();
 }
 
 int listenOn(uint16_t port) {

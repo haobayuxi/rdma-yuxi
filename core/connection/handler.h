@@ -25,36 +25,6 @@
 #define M_UD 0x2
 #define SOCKET_ERROR -1
 
-#define CHECK(val, msg)                 \
-  if (val) {                            \
-    printf("error: %d %s\n", val, msg); \
-    exit(-1);                           \
-  }
-
-#define CPEA(ret)                           \
-  if (!ret) {                               \
-    PRINT_LINE                              \
-    printf("ERROR: %s\n", strerror(errno)); \
-    printf("ERROR: NULL\n");                \
-    exit(1);                                \
-  }
-
-#define CPEN(ret)                             \
-  if (ret == NULL) {                          \
-    PRINT_LINE                                \
-    printf("ERROR: %s\n", strerror(h_errno)); \
-    printf("ERROR: NULL\n");                  \
-    exit(1);                                  \
-  }
-
-#define CPE(ret)                            \
-  if (ret) {                                \
-    PRINT_LINE                              \
-    printf("ERROR: %s\n", strerror(errno)); \
-    printf("ERROR CODE: %d\n", ret);        \
-    exit(ret);                              \
-  }
-
 #define FILL(st)                \
   do {                          \
     memset(&st, 0, sizeof(st)); \
@@ -86,12 +56,12 @@ class Handler {
   void create_cq_and_qp(int max_depth, enum ibv_qp_type qp_type);
   void init_qp();
   void write_with_imm(char *buf, size_t size);
-  static inline void post_write(size_t size, size_t offset);
+  inline void post_write(size_t size, size_t offset);
   void set_fd(int fd_);
-  static inline int poll_send_cq();
-  static void modify_qp_to_rts_and_rtr();
-  static int get_lid();
-  static void reg_buffer();
+  inline int poll_send_cq();
+  void modify_qp_to_rts_and_rtr();
+  int get_lid();
+  void reg_buffer();
 
  private:
   struct ibv_context *context;
