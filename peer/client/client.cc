@@ -28,6 +28,6 @@ int main(int argc, char *argv[]) {
   handler->build_rdma_connection();
   printf("init done\n");
   char *a = "hello world";
-  handler->write_with_imm(a, 12);
+  handler->write_with_imm(a, 10);
   return 0;
 }
