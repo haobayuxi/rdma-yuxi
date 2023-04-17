@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
   handler->get_context_info(rdma_ib_info);
   handler->build_rdma_connection();
   printf("build connection done\n");
+  handler->poll_recv_cq();
   while (1) {
     sleep(1);
   }
