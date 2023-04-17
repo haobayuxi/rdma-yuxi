@@ -65,12 +65,13 @@ int main(int argc, char *argv[]) {
 
   auto listener = listenOn(tcp_port);
   auto fd = acceptAt(listener);
-  auto handler = std::make_shared<Handler>();
-  handler->set_fd(fd);
-  handler->get_context_info(rdma_ib_info);
-  handler->build_rdma_connection();
-  printf("build connection done\n");
-  handler->poll_recv_cq();
+  auto handler = std::make_shared<rdma_fd>();
+  handle.fd = fd;
+
+  get_context_info(handler, r->rdma_ib_info);
+  build_rdma_connection(handler);
+  printf("connection complete!\n");
+  poll_recv_cq(handler);
   while (1) {
     sleep(1);
   }

@@ -1,6 +1,8 @@
 
+
+// refactor
+
 #include <arpa/inet.h>
-#include <fcntl.h>
 #include <getopt.h>
 #include <infiniband/verbs.h>
 #include <netdb.h>
@@ -15,20 +17,64 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <string>
-
 #define DEPTH 100
 #define NUM_RTTS 100
 #define TICKS_PER_USEC 2400
 #define M_RC 0x0
 #define M_UC 0x1
 #define M_UD 0x2
-#define SOCKET_ERROR -1
+
+#define CHECK(val, msg)                 \
+  if (val) {                            \
+    printf("error: %d %s\n", val, msg); \
+    exit(-1);                           \
+  }
+
+#define CPEA(ret)                           \
+  if (!ret) {                               \
+    PRINT_LINE                              \
+    printf("ERROR: %s\n", strerror(errno)); \
+    printf("ERROR: NULL\n");                \
+    exit(1);                                \
+  }
+
+#define CPEN(ret)                             \
+  if (ret == NULL) {                          \
+    PRINT_LINE                                \
+    printf("ERROR: %s\n", strerror(h_errno)); \
+    printf("ERROR: NULL\n");                  \
+    exit(1);                                  \
+  }
+
+#define CPE(ret)                            \
+  if (ret) {                                \
+    PRINT_LINE                              \
+    printf("ERROR: %s\n", strerror(errno)); \
+    printf("ERROR CODE: %d\n", ret);        \
+    exit(ret);                              \
+  }
 
 #define FILL(st)                \
   do {                          \
     memset(&st, 0, sizeof(st)); \
   } while (0);
+
+#define time_sec (time((time_t *)NULL))
+#define PRINT_TIME printf("time: %Lf\n", (long double)clock());
+#define PRINT_LINE printf("line: %d\n", __LINE__);
+#define PRINT_FUNC printf("func: %s\n", __FUNC__);
+
+static void m_nano_sleep(int nsec) {
+  struct timespec tim, tim2;
+  tim.tv_sec = 0;
+  tim.tv_nsec = nsec;
+  if (nanosleep(&tim, &tim2) < 0) {
+    printf("SLEEP ERROR!\n");
+    exit(1);
+  }
+}
+
+/* communication data structure */
 
 struct exchange_info {
   int lid;
@@ -48,23 +94,7 @@ struct context_info {
   struct ibv_pd *pd;
 };
 
-class Handler {
- public:
-  int build_rdma_connection();
-  int get_context_info(context_info *ib_info);
-  void sync_qp_info();
-  void create_cq_and_qp(int max_depth, enum ibv_qp_type qp_type);
-  void init_qp();
-  void write_with_imm(char *buf, size_t size);
-  inline void post_write(size_t size, size_t offset);
-  void set_fd(int fd_);
-  int poll_send_cq();
-  void modify_qp_to_rts_and_rtr();
-  int get_lid();
-  void reg_buffer();
-  void poll_recv_cq();
-
- private:
+struct rdma_fd {
   struct ibv_context *context;
   struct ibv_pd *pd;
   struct ibv_cq *send_cq;
@@ -91,10 +121,21 @@ class Handler {
   uint32_t qkey;
 };
 
+/* some test interface */
+
+/* get rdma info */
+
 int open_device_and_alloc_pd(context_info *ib_info);
+int get_context_info(rdma_fd *handler, context_info *ib_info);
+/* communication interface */
+void query_qp(rdma_fd *handler);
+int rdma_connet(rdma_fd *handler);  // for rdma client to connet;
+int rdma_accept(rdma_fd *handler);  // server to accept  exchange qp info;
 
-int listenOn(uint16_t port);
+int rdma_write(rdma_fd *handler, char *buf, size_t len);
+// int rdma_read(rdma_fd *handler, void *buf, size_t len);
+int read_msg(rdma_fd *handler);
 
-int acceptAt(int sock);
-
-int dialTo(const std::string &remoteIP, uint16_t port);
+int build_rdma_connection(rdma_fd *handler);
+static inline int poll_send_cq(rdma_fd *handler);
+static inline int poll_recv_cq(rdma_fd *handler);

@@ -22,12 +22,12 @@ int main(int argc, char *argv[]) {
   open_device_and_alloc_pd(rdma_ib_info);
 
   auto fd = dialTo("192.168.3.72", tcp_port);
-  auto handler = std::make_shared<Handler>();
-  handler->set_fd(fd);
-  handler->get_context_info(rdma_ib_info);
-  handler->build_rdma_connection();
-  printf("init done\n");
-  char *a = "hello world";
-  handler->write_with_imm(a, 10);
+  //   auto handler = std::make_shared<Handler>();
+  //   handler->set_fd(fd);
+  //   handler->get_context_info(rdma_ib_info);
+  //   handler->build_rdma_connection();
+  //   printf("init done\n");
+  //   char *a = "hello world";
+  //   handler->write_with_imm(a, 10);
   return 0;
 }
