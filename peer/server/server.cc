@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
   auto listener = listenOn(tcp_port);
   auto fd = acceptAt(listener);
   rdma_fd *handler = (rdma_fd *)malloc(sizeof(rdma_fd));
-  handle->fd = fd;
+  handler->fd = fd;
 
   get_context_info(handler, r->rdma_ib_info);
   build_rdma_connection(handler);
