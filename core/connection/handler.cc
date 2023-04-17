@@ -1,12 +1,10 @@
-/*
-   Jingle create 2017 12-01
-*/
+
 
 #include <pthread.h>
 #include <sys/time.h>
 #include <time.h>
 
-#include "../include/rdma_transporter.h"
+#include "rdma_transporter.h"
 
 #define MSG_SIZE 1024
 
@@ -319,8 +317,8 @@ static void sync_qp_info(rdma_fd *handler) {
   // &ibv_res->rparam, &ibv_res->rpriv_data); 		} else {
   // 				client_exchange(server, ibv_res->port,
   // ibv_res->lparam,
-  // ibv_res->lpriv_data, 								&ibv_res->rparam,
-  // &ibv_res->rpriv_data);
+  // ibv_res->lpriv_data,
+  // &ibv_res->rparam, &ibv_res->rpriv_data);
   // //				ibv_res->rparam = m_client_exchange(server,
   // ibv_res->port, ibv_res->lparam);
   // 		}
