@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
   handler->set_fd(fd);
   handler->get_context_info(rdma_ib_info);
   handler->build_rdma_connection();
-
+  printf("init done\n");
   char *a = "hello world";
   handler->write_with_imm(a, 12);
   return 0;
