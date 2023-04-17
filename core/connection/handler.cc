@@ -227,6 +227,7 @@ int Handler::build_rdma_connection() {
   sync_qp_info();
   printf("sync qp done");
   modify_qp_to_rts_and_rtr();
+  printf("modify qp done");
 }
 
 void Handler::reg_buffer() {
