@@ -140,6 +140,13 @@ int rdma_write(rdma_fd *handler, char *buf, size_t len);
 int read_msg(rdma_fd *handler);
 
 int build_rdma_connection(rdma_fd *handler);
+
+int listenOn(uint16_t port);
+
+int acceptAt(int sock);
+
+int dialTo(const std::string &remoteIP, uint16_t port);
+
 static inline int poll_send_cq(rdma_fd *handler) {
   struct ibv_wc wc;
   // printf("handler addr: %p, handler->send_cq addr: %p\n", handler,

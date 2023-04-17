@@ -398,6 +398,7 @@ int rdma_write(rdma_fd *handler, char *buf, size_t size) {
     handler->write_offset += size;
     handler->have_send += size;
   }
+  printf("write done\n");
   return ret;
 }
 
