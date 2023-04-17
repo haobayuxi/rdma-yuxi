@@ -140,5 +140,31 @@ int rdma_write(rdma_fd *handler, char *buf, size_t len);
 int read_msg(rdma_fd *handler);
 
 int build_rdma_connection(rdma_fd *handler);
-static inline int poll_send_cq(rdma_fd *handler);
-static inline int poll_recv_cq(rdma_fd *handler);
+static inline int poll_send_cq(rdma_fd *handler) {
+  struct ibv_wc wc;
+  // printf("handler addr: %p, handler->send_cq addr: %p\n", handler,
+  // handler->send_cq);
+  while (ibv_poll_cq(handler->send_cq, 1, &wc) < 1)
+    ;
+  if (wc.status != IBV_WC_SUCCESS) {
+    printf("Status: %d\n", wc.status);
+    printf("Ibv_poll_cq error!\n");
+    printf("Error: %s\n", strerror(errno));
+    return -1;
+  }
+  //    printf("poll cq success！\n");
+  return 0;
+}
+
+static inline void poll_recv_cq(rdma_fd *handler) {
+  struct ibv_wc wc;
+
+  while (ibv_poll_cq(handler->recv_cq, 1, &wc) < 1)
+    ;
+  if (wc.status != IBV_WC_SUCCESS) {
+    printf("Ibv_poll_cq error!\n");
+    printf("Error: %s\n", strerror(errno));
+    return;
+  }
+  printf("poll cq success！\n");
+}
