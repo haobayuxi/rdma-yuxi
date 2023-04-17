@@ -64,8 +64,7 @@ int main(int argc, char *argv[]) {
     if (rc == SUCC) {
       auto end_time = system_clock::now();
       auto microseconds_since_epoch =
-          duration_cast<microseconds>(end_time - start_time)
-              .count();  // 将时长转换为微秒数
+          duration_cast<microseconds>(end_time - start_time).count();  //
       printf("client: poll ok %d\n", microseconds_since_epoch);
       printf("msg read: %s\n", local_buf);
     } else {
