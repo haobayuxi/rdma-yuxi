@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
   auto fd = dialTo("192.168.3.72", tcp_port);
 
   rdma_fd *handler = (rdma_fd *)malloc(sizeof(rdma_fd));
+  handler.fd = fd;
   get_context_info(handler, rdma_ib_info);
   build_rdma_connection(handler);
 
