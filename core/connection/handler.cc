@@ -207,10 +207,10 @@ int Handler::build_rdma_connection() {
   is_on = true;
   addr = NULL;
   mr = NULL;
-  reg_buffer(handler);
-  create_cq_and_qp(handler, 100, IBV_QPT_RC);
-  sync_qp_info(handler);
-  modify_qp_to_rts_and_rtr(handler);
+  reg_buffer();
+  create_cq_and_qp(100, IBV_QPT_RC);
+  sync_qp_info();
+  modify_qp_to_rts_and_rtr();
 }
 
 void Handler::reg_buffer() {
@@ -304,7 +304,7 @@ int listenOn(uint16_t port) {
                  sizeof(keepCount)) == SOCKET_ERROR)
     fprintf(stderr, "Cannot set socket keep CNT: %d\n", errno);
   if (bind(_socket, (struct sockaddr *)&addr, sizeof(addr))) return -1;
-  if (listen(_socket, GROUP_SIZE)) return -1;
+  if (listen(_socket, 3)) return -1;
   return _socket;
 }
 
