@@ -225,9 +225,10 @@ int Handler::build_rdma_connection() {
   reg_buffer();
   create_cq_and_qp(100, IBV_QPT_RC);
   sync_qp_info();
-  printf("sync qp done");
+  printf("sync qp done\n");
   modify_qp_to_rts_and_rtr();
   printf("modify qp done");
+  return 0;
 }
 
 void Handler::reg_buffer() {
