@@ -204,7 +204,7 @@ void Handler::modify_qp_to_rts_and_rtr() {
     }
   }
   ibv_modify_qp(qp, &qp_attr, flags);
-  printf("modify qp \n");
+  printf("modify qp %d\n", qp->qp_num);
 }
 
 int Handler::build_rdma_connection() {
