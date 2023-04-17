@@ -48,8 +48,8 @@ inline void Handler::post_write(size_t size, size_t offset) {
   ibv_post_send(qp, &send_wr, &bad_send_wr);
 }
 
-void Handler::write_with_imm(char *buf, size_t size) {
-  memcpy(buf + write_offset, buf, size);
+void Handler::write_with_imm(char *value, size_t size) {
+  memcpy(buf + write_offset, value, size);
   post_write(size, have_send);
 
   auto ret = poll_send_cq();
