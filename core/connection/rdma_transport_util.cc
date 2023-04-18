@@ -172,8 +172,19 @@ static void modify_qp_to_rts_and_rtr(rdma_fd *handler) {
   printf("IB port: %d\n", handler->ib_port_base);
   CPE(ibv_modify_qp(handler->qp, &qp_attr, flags));
   FILL(qp_attr);
+  // qp_attr.qp_state = IBV_QPS_RTS;
+  // flags = IBV_QP_STATE | IBV_QP_SQ_PSN;
+
   qp_attr.qp_state = IBV_QPS_RTS;
-  flags = IBV_QP_STATE | IBV_QP_SQ_PSN;
+  // qp_attr.sq_psn = config.sq_psn;
+  qp_attr.timeout = 14;
+  qp_attr.retry_cnt = 7;
+  qp_attr.rnr_retry = 7;
+  qp_attr.max_rd_atomic = 16;
+  qp_attr.max_dest_rd_atomic = 16;
+
+  flags = IBV_QP_STATE | IBV_QP_SQ_PSN | IBV_QP_TIMEOUT | IBV_QP_RETRY_CNT |
+          IBV_QP_RNR_RETRY | IBV_QP_MAX_QP_RD_ATOMIC;
   if (handler->mode == M_UD) {
     qp_attr.sq_psn = lrand48() & 0xffffff;
   } else {
