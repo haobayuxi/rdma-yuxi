@@ -67,50 +67,35 @@ char *gen_test_string(int len, int times) {
 }
 
 int main(int argc, char *argv[]) {
-  rdma_fd *handler = (rdma_fd *)malloc(sizeof(rdma_fd));
-  init_server(handler);
-  int count = 0;
-  int msg_len = 30;
-  for (;;) {
-    char *buf = server_recv(handler);
-    printf("get a msg = %s\n", buf);
-    count++;
-    char *response = gen_test_string(msg_len, count);
-    server_send(handler, response, msg_len);
-    free(buf);
-    free(response);
-  }
+  RdmaCtrl *c = new RdmaCtrl(server_node_id, tcp_port);
+  RdmaCtrl::DevIdx idx{.dev_id = 0,
+                       .port_id = 1};  // using the first RNIC's first port
+  c->open_thread_local_device(idx);
 
-  // RdmaCtrl *c = new RdmaCtrl(server_node_id, tcp_port);
-  // RdmaCtrl::DevIdx idx{.dev_id = 0,
-  //                      .port_id = 1};  // using the first RNIC's first port
-  // c->open_thread_local_device(idx);
+  // register a buffer to the previous opened device, using id = 73
+  char *buffer = (char *)malloc(4096);
+  memset(buffer, 0, 4096);
+  RDMA_ASSERT(c->register_memory(MR_ID, buffer, 4096, c->get_device()) == true);
 
-  // // register a buffer to the previous opened device, using id = 73
-  // char *buffer = (char *)malloc(4096);
-  // memset(buffer, 0, 4096);
-  // RDMA_ASSERT(c->register_memory(MR_ID, buffer, 4096, c->get_device()) ==
-  // true);
+  char s[] = "hello world";
+  memcpy(buffer, s, strlen(s));
 
-  // char s[] = "hello world";
-  // memcpy(buffer, s, strlen(s));
+  // MemoryAttr local_mr = c->get_local_mr(MR_ID);
+  // RCQP *qp = c->create_rc_qp(create_rc_idx(1, 0), c->get_device(),
+  // &local_mr);
 
-  // // MemoryAttr local_mr = c->get_local_mr(MR_ID);
-  // // RCQP *qp = c->create_rc_qp(create_rc_idx(1, 0), c->get_device(),
-  // // &local_mr);
-
-  // // // server also needs to "connect" clinet.
-  // // while (qp->connect("localhost", client_port, create_rc_idx(1, 0)) !=
+  // // server also needs to "connect" clinet.
+  // while (qp->connect("localhost", client_port, create_rc_idx(1, 0)) !=
   // SUCC)
-  // // {
-  // //   usleep(2000);
-  // // }
-
-  // printf("server: QP init!\n");
-  // while (true) {
-  //   // This is RDMA, server does not need to do anything :)
-  //   sleep(1);
+  // {
+  //   usleep(2000);
   // }
+
+  printf("server: QP init!\n");
+  while (true) {
+    // This is RDMA, server does not need to do anything :)
+    sleep(1);
+  }
 
   return 0;
 }
