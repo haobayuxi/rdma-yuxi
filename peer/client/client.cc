@@ -6,6 +6,8 @@
 #include <chrono>
 #include <ctime>
 
+#include "rlib/rdma_ctrl.hpp"
+
 int client_node_id = 0;
 int tcp_port = 10001;
 int server_port = 10001;
