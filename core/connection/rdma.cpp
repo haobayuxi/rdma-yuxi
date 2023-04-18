@@ -1,6 +1,6 @@
 
 
-#include "../include/rdma.h"
+#include "rdma.h"
 
 void init_client(rdma_fd *handler, char *server) {
   // char *server = "tstore04";
