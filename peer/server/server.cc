@@ -67,6 +67,8 @@ char *gen_test_string(int len, int times) {
 }
 
 int main(int argc, char *argv[]) {
+  int server_node_id = 1;
+  int tcp_port = 10001;
   RdmaCtrl *c = new RdmaCtrl(server_node_id, tcp_port);
   RdmaCtrl::DevIdx idx{.dev_id = 0,
                        .port_id = 1};  // using the first RNIC's first port
