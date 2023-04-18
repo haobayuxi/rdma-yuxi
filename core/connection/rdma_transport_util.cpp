@@ -1,9 +1,9 @@
 
+#include "rdma_transport_util.h"
+
 #include <pthread.h>
 #include <sys/time.h>
 #include <time.h>
-
-#include "rdma.h"
 
 #define MSG_SIZE 1024
 
@@ -195,11 +195,12 @@ static void exchange(rdma_fd *handler) {
   ret = sendData1(handler->fd, handler->l_qp_info, sizeof(exchange_info));
   ret = readUntil1(handler->fd, handler->r_qp_info, sizeof(exchange_info));
   //	printf("remote lid %d, qpn %d\n", handler->r_qp_info->lid,
-  //handler->r_qp_info->qpn);
+  // handler->r_qp_info->qpn);
   ret = sendData1(handler->fd, handler->l_private_data, sizeof(private_data));
   ret = readUntil1(handler->fd, handler->r_private_data, sizeof(private_data));
   //	printf("remote addr %ld, rkey %d\n",
-  //handler->r_private_data->buffer_addr, handler->r_private_data->buffer_rkey);
+  // handler->r_private_data->buffer_addr,
+  // handler->r_private_data->buffer_rkey);
 }
 
 static void sync_qp_info(rdma_fd *handler) {
@@ -224,13 +225,16 @@ static void sync_qp_info(rdma_fd *handler) {
 
   //		struct m_param param;
   // 		if (ibv_res->is_server) {
-  // //				ibv_res->rparam = m_server_exchange(ibv_res->port,
-  // ibv_res->lparam); 				server_exchange(ibv_res->port, ibv_res->lparam,
-  // ibv_res->lpriv_data, 								&ibv_res->rparam, &ibv_res->rpriv_data); 		} else {
-  // 				client_exchange(server, ibv_res->port, ibv_res->lparam,
-  // ibv_res->lpriv_data, 								&ibv_res->rparam, &ibv_res->rpriv_data);
-  // //				ibv_res->rparam = m_client_exchange(server, ibv_res->port,
-  // ibv_res->lparam);
+  // //				ibv_res->rparam =
+  // m_server_exchange(ibv_res->port, ibv_res->lparam);
+  // server_exchange(ibv_res->port, ibv_res->lparam, ibv_res->lpriv_data,
+  // &ibv_res->rparam, &ibv_res->rpriv_data); 		} else {
+  // 				client_exchange(server, ibv_res->port,
+  // ibv_res->lparam,
+  // ibv_res->lpriv_data, 								&ibv_res->rparam,
+  // &ibv_res->rpriv_data);
+  // //				ibv_res->rparam = m_client_exchange(server,
+  // ibv_res->port, ibv_res->lparam);
   // 		}
   exchange(handler);
   printf("Remote LID = %d, QPN = %d, PSN = %d\n", handler->r_qp_info->lid,
