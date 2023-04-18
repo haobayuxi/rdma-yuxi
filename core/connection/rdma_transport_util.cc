@@ -171,7 +171,7 @@ static void modify_qp_to_rts_and_rtr(rdma_fd *handler) {
   }
   printf("IB port: %d\n", handler->ib_port_base);
   CPE(ibv_modify_qp(handler->qp, &qp_attr, flags));
-
+  FILL(qp_attr);
   qp_attr.qp_state = IBV_QPS_RTS;
   flags = IBV_QP_STATE | IBV_QP_SQ_PSN;
   if (handler->mode == M_UD) {
