@@ -8,6 +8,9 @@
 
 #include "rlib/rdma_ctrl.hpp"
 
+using namespace rdmaio;
+using namespace std::chrono;
+
 int client_node_id = 0;
 int tcp_port = 10001;
 int server_port = 10001;
