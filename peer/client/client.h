@@ -1,5 +1,5 @@
 #include "common/json.h"
-#include "connection/handler.h"
+// #include "connection/handler.h"
 #include "connection/rdma.h"
 
 class Client {
