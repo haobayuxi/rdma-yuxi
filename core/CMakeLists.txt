@@ -4,7 +4,7 @@
 set(CONNECTION_SRC
         connection/qp_manager.cc
         connection/handler.cc
-        
+        connection/rdma_transport_util.cc
         )
 
 set(SCHEDULER_SRC
