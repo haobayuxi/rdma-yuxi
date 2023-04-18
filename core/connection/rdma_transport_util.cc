@@ -231,8 +231,8 @@ static void sync_qp_info(rdma_fd *handler) {
   // &ibv_res->rparam, &ibv_res->rpriv_data); 		} else {
   // 				client_exchange(server, ibv_res->port,
   // ibv_res->lparam,
-  // ibv_res->lpriv_data, 								&ibv_res->rparam,
-  // &ibv_res->rpriv_data);
+  // ibv_res->lpriv_data,
+  // &ibv_res->rparam, &ibv_res->rpriv_data);
   // //				ibv_res->rparam = m_client_exchange(server,
   // ibv_res->port, ibv_res->lparam);
   // 		}
