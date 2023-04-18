@@ -273,7 +273,7 @@ static void modify_qp_to_rts_and_rtr(rdma_fd *handler) {
                IBV_QP_MAX_QP_RD_ATOMIC;
     }
   }
-  //   CPE(ibv_modify_qp(handler->qp, &qp_attr, flags));
+  CPE(ibv_modify_qp(handler->qp, &qp_attr, flags));
 }
 
 static void exchange(rdma_fd *handler) {

@@ -56,25 +56,31 @@ void Server::GenThreads() {
 
 void Server::InitRdma() {}
 
+char *gen_test_string(int len, int times) {
+  char *str;
+  str = (char *)malloc(len + 1);
+
+  sprintf(str, "send response %d times", times);
+  str[len] = '1';
+
+  return str;
+}
+
 int main(int argc, char *argv[]) {
-  int server_node_id = 1;
-  int tcp_port = 10001;
-
-  auto rdma_ib_info = (context_info *)malloc(sizeof(context_info));
-  open_device_and_alloc_pd(rdma_ib_info);
-
-  auto listener = listenOn(tcp_port);
-  auto fd = acceptAt(listener);
   rdma_fd *handler = (rdma_fd *)malloc(sizeof(rdma_fd));
-  handler->fd = fd;
-
-  get_context_info(handler, rdma_ib_info);
-  build_rdma_connection(handler);
-  printf("connection complete!\n");
-  poll_recv_cq(handler);
-  while (1) {
-    sleep(1);
+  init_server(handler);
+  int count = 0;
+  int msg_len = 30;
+  for (;;) {
+    char *buf = server_recv(handler);
+    printf("get a msg = %s\n", buf);
+    count++;
+    char *response = gen_test_string(msg_len, count);
+    server_send(handler, response, msg_len);
+    free(buf);
+    free(response);
   }
+
   // RdmaCtrl *c = new RdmaCtrl(server_node_id, tcp_port);
   // RdmaCtrl::DevIdx idx{.dev_id = 0,
   //                      .port_id = 1};  // using the first RNIC's first port
