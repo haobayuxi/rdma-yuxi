@@ -6,7 +6,6 @@
 #include <chrono>
 #include <ctime>
 
-using namespace rdmaio;
 using namespace std::chrono;
 
 int client_node_id = 0;

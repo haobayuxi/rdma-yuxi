@@ -7,7 +7,6 @@
 #include "common/json.h"
 
 using namespace std;
-using namespace rdmaio;
 
 void Server::InitData() {}
 
