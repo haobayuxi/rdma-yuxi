@@ -14,7 +14,7 @@ set(SCHEDULER_SRC
         )
 
 add_library(yuxi STATIC
-        ${CONNECTION_SRC}
+        # ${CONNECTION_SRC}
         # ${SCHEDULER_SRC}
         )
 
