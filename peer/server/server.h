@@ -1,10 +1,10 @@
-#include "common/common.h"
+// #include "common/common.h"
 // #include "connection/handler.h"
 #include "connection/rdma.h"
 
 class Server {
  public:
-  Server(int id, SystemConfig config) : server_id(id), config(config) {}
+  Server(int id) : server_id(id) {}
 
   ~Server() {}
 
@@ -16,5 +16,5 @@ class Server {
 
  private:
   const int server_id;
-  const SystemConfig config;
+  // const SystemConfig config;
 };
