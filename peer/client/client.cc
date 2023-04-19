@@ -6,8 +6,6 @@
 #include <chrono>
 #include <ctime>
 
-#include "rlib/rdma_ctrl.hpp"
-
 using namespace rdmaio;
 using namespace std::chrono;
 
