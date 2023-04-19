@@ -1,6 +1,9 @@
 # Author: Ming Zhang
 # Copyright (c) 2022
 
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -libverbs -std=c++11")
+
 set(CONNECTION_SRC
         connection/rdma.cc
         connection/rdma_transport.cc
