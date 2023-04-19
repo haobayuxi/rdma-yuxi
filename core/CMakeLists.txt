@@ -2,9 +2,8 @@
 # Copyright (c) 2022
 
 set(CONNECTION_SRC
-        connection/qp_manager.cc
-        connection/handler.cc
-        connection/rdma_transport_util.cc
+        connection/rdma.cc
+        connection/rdma_transport.cc
         )
 
 set(SCHEDULER_SRC

@@ -1,37 +1,25 @@
-// Author: Ming Zhang
-// Copyright (c) 2022
+#include "rlib/rdma_ctrl.hpp"
 
-#pragma once
+using namespace rdmaio;
 
-#include "common/common.h"
-#include "connection/meta_manager.h"
+#define REMOTE_NODE_NUM 3
 
-// This QPManager builds qp connections (compute node <-> memory node) for each
-// txn thread in each compute node
-class QPManager {
+struct RemoteNode {
+  node_id_t node_id;
+  std::string ip;
+  int port;
+};
+
+class QP_Manager {
  public:
-  QPManager(t_id_t global_tid) : global_tid(global_tid) {}
-
-  void BuildQPConnection(MetaManager* meta_man);
-
-  ALWAYS_INLINE
-  RCQP* GetRemoteDataQPWithNodeID(const node_id_t node_id) const {
-    return data_qps[node_id];
-  }
-
-  ALWAYS_INLINE
-  void GetRemoteDataQPsWithNodeIDs(const std::vector<node_id_t>* node_ids,
-                                   std::vector<RCQP*>& qps) {
-    for (node_id_t node_id : *node_ids) {
-      RCQP* qp = data_qps[node_id];
-      if (qp) {
-        qps.push_back(qp);
-      }
-    }
-  }
+  QP_Manager();
+  void build_connection();
+  void send_msg(node_id_t node_id, char* msg, size_t size, uint32_t imm);
+  RdmaCtrlPtr global_rdma_ctrl;
+  std::vector<RemoteNode> remote_nodes;
+  RNicHandler* opened_rnic;
 
  private:
-  RCQP* data_qps[3]{nullptr};
-
-  t_id_t global_tid;
-};
+  std::vector<RCQP*> send_qp;
+  std::vector<RCQP*> recv_qp;
+}

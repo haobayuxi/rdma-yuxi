@@ -1,9 +1,9 @@
 
-#include "rdma_transport_util.h"
-
 #include <pthread.h>
 #include <sys/time.h>
 #include <time.h>
+
+#include "../include/rdma.h"
 
 #define MSG_SIZE 1024
 
@@ -171,32 +171,21 @@ static void modify_qp_to_rts_and_rtr(rdma_fd *handler) {
   }
   printf("IB port: %d\n", handler->ib_port_base);
   CPE(ibv_modify_qp(handler->qp, &qp_attr, flags));
-  FILL(qp_attr);
-  // qp_attr.qp_state = IBV_QPS_RTS;
-  // flags = IBV_QP_STATE | IBV_QP_SQ_PSN;
 
   qp_attr.qp_state = IBV_QPS_RTS;
-  // qp_attr.sq_psn = config.sq_psn;
-  qp_attr.timeout = 14;
-  qp_attr.retry_cnt = 7;
-  qp_attr.rnr_retry = 7;
-  qp_attr.max_rd_atomic = 16;
-  qp_attr.max_dest_rd_atomic = 16;
-
-  flags = IBV_QP_STATE | IBV_QP_SQ_PSN | IBV_QP_TIMEOUT | IBV_QP_RETRY_CNT |
-          IBV_QP_RNR_RETRY | IBV_QP_MAX_QP_RD_ATOMIC;
+  flags = IBV_QP_STATE | IBV_QP_SQ_PSN;
   if (handler->mode == M_UD) {
     qp_attr.sq_psn = lrand48() & 0xffffff;
   } else {
     qp_attr.sq_psn = handler->l_qp_info->psn;
-    // if (handler->mode == M_RC) {
-    //   qp_attr.timeout = 14;
-    //   qp_attr.retry_cnt = 7;
-    //   qp_attr.rnr_retry = 7;
-    //   qp_attr.max_rd_atomic = 1;
-    //   flags |= IBV_QP_TIMEOUT | IBV_QP_RETRY_CNT | IBV_QP_RNR_RETRY |
-    //            IBV_QP_MAX_QP_RD_ATOMIC;
-    // }
+    if (handler->mode == M_RC) {
+      qp_attr.timeout = 14;
+      qp_attr.retry_cnt = 7;
+      qp_attr.rnr_retry = 7;
+      qp_attr.max_rd_atomic = 1;
+      flags |= IBV_QP_TIMEOUT | IBV_QP_RETRY_CNT | IBV_QP_RNR_RETRY |
+               IBV_QP_MAX_QP_RD_ATOMIC;
+    }
   }
   CPE(ibv_modify_qp(handler->qp, &qp_attr, flags));
 }
@@ -206,12 +195,11 @@ static void exchange(rdma_fd *handler) {
   ret = sendData1(handler->fd, handler->l_qp_info, sizeof(exchange_info));
   ret = readUntil1(handler->fd, handler->r_qp_info, sizeof(exchange_info));
   //	printf("remote lid %d, qpn %d\n", handler->r_qp_info->lid,
-  // handler->r_qp_info->qpn);
+  //handler->r_qp_info->qpn);
   ret = sendData1(handler->fd, handler->l_private_data, sizeof(private_data));
   ret = readUntil1(handler->fd, handler->r_private_data, sizeof(private_data));
   //	printf("remote addr %ld, rkey %d\n",
-  // handler->r_private_data->buffer_addr,
-  // handler->r_private_data->buffer_rkey);
+  //handler->r_private_data->buffer_addr, handler->r_private_data->buffer_rkey);
 }
 
 static void sync_qp_info(rdma_fd *handler) {
@@ -236,16 +224,13 @@ static void sync_qp_info(rdma_fd *handler) {
 
   //		struct m_param param;
   // 		if (ibv_res->is_server) {
-  // //				ibv_res->rparam =
-  // m_server_exchange(ibv_res->port, ibv_res->lparam);
-  // server_exchange(ibv_res->port, ibv_res->lparam, ibv_res->lpriv_data,
-  // &ibv_res->rparam, &ibv_res->rpriv_data); 		} else {
-  // 				client_exchange(server, ibv_res->port,
-  // ibv_res->lparam,
-  // ibv_res->lpriv_data,
-  // &ibv_res->rparam, &ibv_res->rpriv_data);
-  // //				ibv_res->rparam = m_client_exchange(server,
-  // ibv_res->port, ibv_res->lparam);
+  // //				ibv_res->rparam = m_server_exchange(ibv_res->port,
+  // ibv_res->lparam); 				server_exchange(ibv_res->port, ibv_res->lparam,
+  // ibv_res->lpriv_data, 								&ibv_res->rparam, &ibv_res->rpriv_data); 		} else {
+  // 				client_exchange(server, ibv_res->port, ibv_res->lparam,
+  // ibv_res->lpriv_data, 								&ibv_res->rparam, &ibv_res->rpriv_data);
+  // //				ibv_res->rparam = m_client_exchange(server, ibv_res->port,
+  // ibv_res->lparam);
   // 		}
   exchange(handler);
   printf("Remote LID = %d, QPN = %d, PSN = %d\n", handler->r_qp_info->lid,
@@ -439,14 +424,14 @@ int client_exchange(const char *server, uint16_t port) {
   if (s == -1) {
     printf("SOCK ERROR!\n");
   }
-  struct hostent *hent = gethostbyname(server);
-  CPEN(hent);
+  // struct hostent *hent = gethostbyname(server);
+  // CPEN(hent);
   ssize_t temp;
   struct sockaddr_in sin;
   FILL(sin);
   sin.sin_family = PF_INET;
   sin.sin_port = htons(port);
-  sin.sin_addr = *((struct in_addr *)hent->h_addr);
+  inet_aton(server, &sin.sin_addr);
   m_nano_sleep(50000000);
   CPE((connect(s, (struct sockaddr *)&sin, sizeof(sin)) == -1));
   return s;
