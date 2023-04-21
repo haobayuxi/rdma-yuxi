@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "rpc.h"
+#include "erpc/rpc.h"
 
 static const std::string kServerHostname = "192.168.3.71";
 static const std::string kClientHostname = "192.168.3.72";
