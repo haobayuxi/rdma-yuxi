@@ -1,20 +1,27 @@
-#include "common/common.h"
-// #include "connection/handler.h"
-#include "connection/rdma.h"
+#include <stdio.h>
 
-class Server {
- public:
-  Server(int id, SystemConfig config) : server_id(id), config(config) {}
+#include "rpc.h"
 
-  ~Server() {}
+static const std::string kServerHostname = "192.168.3.71";
+static const std::string kClientHostname = "192.168.3.72";
 
-  void GenThreads();
+static constexpr uint16_t kUDPPort = 31850;
+static constexpr uint8_t kReqType = 2;
+static constexpr size_t kMsgSize = 16;
 
-  void InitData();
+// class Server {
+//  public:
+//   Server(int id, SystemConfig config) : server_id(id), config(config) {}
 
-  void InitRdma();
+//   ~Server() {}
 
- private:
-  const int server_id;
-  const SystemConfig config;
-};
+//   void GenThreads();
+
+//   void InitData();
+
+//   void InitRdma();
+
+//  private:
+//   const int server_id;
+//   const SystemConfig config;
+// };

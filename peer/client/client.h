@@ -1,14 +1,21 @@
-#include "common/json.h"
-// #include "connection/handler.h"
-#include "connection/rdma.h"
+#include <stdio.h>
 
-class Client {
- public:
-  Client(int id, SystemConfig config) : client_id(id), config(config) {}
+#include "rpc.h"
 
-  ~Client() {}
+static const std::string kServerHostname = "192.168.3.71";
+static const std::string kClientHostname = "192.168.3.72";
 
- private:
-  const int client_id;
-  const SystemConfig config;
-};
+static constexpr uint16_t kUDPPort = 31850;
+static constexpr uint8_t kReqType = 2;
+static constexpr size_t kMsgSize = 16;
+
+// class Client {
+//  public:
+//   Client(int id, SystemConfig config) : client_id(id), config(config) {}
+
+//   ~Client() {}
+
+//  private:
+//   const int client_id;
+//   const SystemConfig config;
+// };

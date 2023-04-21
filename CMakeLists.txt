@@ -15,9 +15,7 @@ else()
 endif()
 
 include_directories(
-    thirdparty
     # core
-    workload
     peer
 )
 
@@ -27,6 +25,5 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
 # add_subdirectory(core)
 
-add_subdirectory(workload)
 
 add_subdirectory(peer)
